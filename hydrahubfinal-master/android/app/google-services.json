@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "664856122967",
+    "project_id": "sign-up-validation-b34a3",
+    "storage_bucket": "sign-up-validation-b34a3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:664856122967:android:7a04c396f8444601943512",
+        "android_client_info": {
+          "package_name": "com.example.sign_up_validation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "664856122967-4trotsacaj78tc37o2dih8jao3vs64ir.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8sAc--ZR-q7O1Rj2YYZCM7sHVgE41-yM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "664856122967-4trotsacaj78tc37o2dih8jao3vs64ir.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:664856122967:android:09cd395cb727d237943512",
+        "android_client_info": {
+          "package_name": "com.example.skindiseasedetector"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "664856122967-4trotsacaj78tc37o2dih8jao3vs64ir.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8sAc--ZR-q7O1Rj2YYZCM7sHVgE41-yM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "664856122967-4trotsacaj78tc37o2dih8jao3vs64ir.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
