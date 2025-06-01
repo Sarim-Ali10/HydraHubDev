@@ -5,9 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:skinai/api_key_secret.dart';
 import 'package:skinai/constants/size_config.dart';
 import 'package:skinai/firebase_options.dart';
-import 'package:skinai/views/chat_image_screen.dart';
 import 'package:skinai/views/doctors_screen.dart';
 import 'package:skinai/views/home_screen.dart';
+import 'package:skinai/views/product_screen.dart';
+import 'package:skinai/views/profile_screen.dart';
+import 'package:skinai/views/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return  MaterialApp(
-      home:  HomeScreen(),
+      home:  SplashScreen(),
       title: 'Skin Disease Detector',
       theme: ThemeData(
           textTheme: GoogleFonts.poppinsTextTheme()

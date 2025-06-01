@@ -1,5 +1,8 @@
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../appservices/ai_service.dart';
 import '../constants/colors.dart';
 
@@ -13,14 +16,72 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final ChatUser _currentUser = ChatUser(id: '1', firstName: 'You');
   final ChatUser _aiUser = ChatUser(id: '2', firstName: 'Derm AI');
+  bool _isLoading = true;
 
   List<ChatMessage> _messages = [];
   List<ChatUser> _typingUsers = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadChatHistory();
+  }
+
+  Future<void> _loadChatHistory() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('messages')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final chatMessages = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return ChatMessage(
+          text: data['text'] ?? '',
+          user: data['userId'] == _currentUser.id ? _currentUser : _aiUser,
+          createdAt: DateTime.parse(data['createdAt']),
+        );
+      }).toList();
+
+      setState(() {
+        _messages = chatMessages;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
   Future<void> _handleSend(ChatMessage message) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
     setState(() {
       _messages.insert(0, message);
       _typingUsers.add(_aiUser);
+    });
+
+    // Save user's message
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('messages')
+        .add({
+      'text': message.text,
+      'userId': _currentUser.id,
+      'createdAt': message.createdAt.toIso8601String(),
     });
 
     try {
@@ -35,16 +96,27 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _messages.insert(0, responseMessage);
       });
+
+      // Save AI reply
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('messages')
+          .add({
+        'text': reply,
+        'userId': _aiUser.id,
+        'createdAt': responseMessage.createdAt.toIso8601String(),
+      });
+
     } catch (e) {
+      final errorMessage = ChatMessage(
+        user: _aiUser,
+        createdAt: DateTime.now(),
+        text: 'Error: ${e.toString()}',
+      );
+
       setState(() {
-        _messages.insert(
-          0,
-          ChatMessage(
-            user: _aiUser,
-            createdAt: DateTime.now(),
-            text: 'Error: ${e.toString()}',
-          ),
-        );
+        _messages.insert(0, errorMessage);
       });
     } finally {
       setState(() {
@@ -83,47 +155,47 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-      body:  Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: DashChat(
-            currentUser: _currentUser,
-
-            onSend: _handleSend,
-            messages: _messages,
-            typingUsers: _typingUsers,
-            inputOptions: InputOptions(
-                sendButtonBuilder: (send) => IconButton(
-                  icon: const Icon(Icons.send, color: successColor),
-                  onPressed: send,
-                ),
-                cursorStyle: CursorStyle(
-                    color: Colors.black
-                ),
-                inputDecoration: InputDecoration(
-                  hintText: 'Type your message here...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey,          // color of hint text
-                    fontSize: 14,                // size of hint text
-                    fontWeight: FontWeight.w400, // weight of hint text
-                    fontStyle: FontStyle.normal, // optional italic style
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: successColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide(color: successColor, width: 2),
-                  ),
-                )
+      body: _isLoading
+          ? const Center(
+        child: SpinKitFadingCircle(
+          color: successColor,
+          size: 50.0,
+        ),// ⬅️ Spinner while loading
+      )
+          : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DashChat(
+          currentUser: _currentUser,
+          onSend: _handleSend,
+          messages: _messages,
+          typingUsers: _typingUsers,
+          inputOptions: InputOptions(
+            sendButtonBuilder: (send) => IconButton(
+              icon: const Icon(Icons.send, color: successColor),
+              onPressed: send,
             ),
-
-            messageOptions: const MessageOptions(
-              currentUserContainerColor: successColor,
-              containerColor: Colors.black87,
-              textColor: Colors.white,
+            cursorStyle: const CursorStyle(color: Colors.black),
+            inputDecoration: InputDecoration(
+              hintText: 'Type your message here...',
+              hintStyle: const TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: successColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: const BorderSide(color: successColor, width: 2),
+              ),
             ),
+          ),
+          messageOptions: const MessageOptions(
+            currentUserContainerColor: successColor,
+            containerColor: Color(0xFF232023),
+            textColor: Colors.white,
           ),
         ),
       ),

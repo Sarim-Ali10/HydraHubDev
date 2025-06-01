@@ -8,4 +8,4 @@ const Color accentColor = Color(0xFF7AB2B2);
 
 const Color dangerColor = Color(0xFFFF3131);
 
-const Color successColor = Color(0xFF50C878);
+const Color successColor = Color(0xFF8cc63f);

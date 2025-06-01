@@ -73,6 +73,8 @@ class _AllDoctorsScreenState extends State<AllDoctorsScreen> {
 
     final isOpen = (doctor['status']?.toString().toLowerCase() ?? '') == 'open';
 
+    var doctorStatus = doctor;
+    debugPrint("Doctor Status: $doctorStatus");
     return InkWell(
       onTap: () => _launchDoctorLocation(doctor, context),
       borderRadius: BorderRadius.circular(16),
